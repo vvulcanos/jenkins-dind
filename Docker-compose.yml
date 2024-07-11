@@ -8,7 +8,7 @@ services:
     networks:
       jenkins:
         aliases:
-          - docker
+          - dind.wemade.com
     ports:
       - 2376:2376
     command:
@@ -16,24 +16,43 @@ services:
 
   jenkins-blueocean:
     build:
+      context: jenkins
       dockerfile: Dockerfile
     ports:
       - 8080:8080
-      - 5000:5000
+      - 50000:50000
     volumes:
       - jenkins-data:/var/jenkins_home
       - jenkins-docker-certs:/certs/client:ro
     environment:
-      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_HOST=tcp://dind.wemade.com:2376
       - DOCKER_CERT_PATH=/certs/client
       - DOCKER_TLS_VERIFY=1
     restart: on-failure
     networks:
       - jenkins
 
+
+  nexus:
+      build:
+        context: nexus
+        dockerfile: Dockerfile
+      volumes:
+        - nexus-data:/nexus-data
+      ports:
+        - 8443:8443
+        - 5443:5443
+      env_file:
+        - .env
+      networks:
+        jenkins:
+          aliases:
+            - nexus.wemade.com
+
 volumes:
   jenkins-data: {}
   jenkins-docker-certs: {}
+  nexus-data: {}
 
 networks:
   jenkins: {}
