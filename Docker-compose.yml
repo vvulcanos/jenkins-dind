@@ -43,7 +43,7 @@ services:
         - 8443:8443
         - 5443:5443
       env_file:
-        - .env
+        - nexus/.env
       networks:
         jenkins:
           aliases:
